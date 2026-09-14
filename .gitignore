@@ -1,7 +1,14 @@
 node_modules/
 dist/
+.model-cache/
+public/models/
 public/vendor/
+public/trazo-source.zip
+
+.env*
 .DS_Store
 *.log
-.env
-.env.*
+*.tsbuildinfo
+.sites-runtime/
+.sites-preview/
+.openai/

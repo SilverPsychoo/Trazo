@@ -74,6 +74,8 @@ export function download(blob: Blob, name: string) {
     a = document.createElement('a');
   a.href = url;
   a.download = name;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 20000);
 }

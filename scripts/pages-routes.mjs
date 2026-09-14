@@ -1,4 +1,4 @@
-import { mkdirSync,readFileSync,writeFileSync } from 'node:fs';
+import { mkdirSync,readFileSync,writeFileSync,rmSync } from 'node:fs';
 const catalog=readFileSync('lib/catalog.ts','utf8');
 const tools=[...catalog.matchAll(/slug: '([^']+)'[\s\S]*?name: \['([^']+)', '([^']+)'\],[\s\S]*?description: \[\s*'([^']+)',\s*'([^']+)'/g)].map(m=>({slug:m[1],names:[m[2],m[3]],descriptions:[m[4],m[5]]}));
 if(tools.length!==10)throw Error('Expected all ten tools in static route generation');
@@ -20,3 +20,6 @@ writeFileSync('dist/404.html',html);
 writeFileSync('dist/robots.txt','User-agent: *\nAllow: /\n'+(origin?'Sitemap: '+new URL('sitemap.xml',origin).href+'\n':''));
 if(origin)writeFileSync('dist/sitemap.xml','<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['',...urls].map(u=>'<url><loc>'+escape(new URL(u,origin).href)+'</loc></url>').join('')+'</urlset>');
 console.log(`Static routes: ${1+2*(1+tools.length)}, all with relative asset bases.`);
+
+// Remove obsolete runtime files when rebuilding over an older output directory.
+for(const name of ['ort-wasm-simd-threaded.mjs','ort-wasm-simd-threaded.wasm'])rmSync('dist/vendor/onnx/'+name,{force:true});

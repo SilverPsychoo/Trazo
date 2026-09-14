@@ -4,163 +4,88 @@
 
 # Trazo
 
-### Free, private image tools that run directly in your browser
+### A private, free image studio that runs in your browser
 
-Compress, convert, resize, crop, remove backgrounds, vectorize and edit images without uploading them to a Trazo server.
+Compress, convert, resize, crop, remove backgrounds, vectorize, and edit images without uploading them to a server.
 
-[**Open Trazo**](https://trazo-estudio-imagen.jonathanleonelmaldon.chatgpt.site/) · [Report an issue](../../issues) · [Suggest an improvement](../../issues)
-
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-688947?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/silverpsycho)
-
-[Español](README.md) · **English**
+[**Open Trazo**](https://silverpsychoo.github.io/Trazo/) · [**Español**](README.md) · [**Ko-fi**](https://ko-fi.com/silverpsycho)
 
 </div>
 
----
+## What is Trazo?
 
-## About Trazo
+Trazo brings ten image tools together in a fast, bilingual web app for desktop and mobile. Processing happens locally on the device: the original file stays untouched and every download is created as a new file.
 
-**Trazo** is a small browser-based image studio for everyday tasks without installing heavy desktop software or uploading files to external processing services.
-
-The original file stays untouched, every tool includes a preview, and processing happens locally whenever the browser supports it. Trazo works on desktop and mobile and can be deployed as a static GitHub Pages site.
-
-> [!NOTE]
-> Trazo prioritizes privacy and local processing. User images are not sent to a Trazo backend.
-
----
+The app analyzes each image when it is loaded and prepares suitable initial settings. Advanced controls are optional, and the preview updates automatically whenever a setting changes. Editing uses a smaller preview for responsiveness, while downloads apply the same settings to the original resolution.
 
 ## Tools
 
-| Tool | What it does |
+| Tool | Function |
 |---|---|
-| **Compress image** | Reduces file size with modern codecs and shows the real savings before download. |
-| **Convert format** | Converts between JPG, PNG, WebP and AVIF while preserving transparency when supported. |
-| **Resize image** | Changes dimensions using high-quality resampling with optional aspect-ratio locking. |
-| **Crop image** | Free or fixed-ratio crop with zoom, rotation and touch controls. |
-| **Remove background** | Local U2NetP segmentation through ONNX Runtime, using WebGPU when available and WASM as fallback. |
-| **Vectorize image** | Converts raster images to SVG using VTracer WASM with color, poster, line-art, outline and silhouette modes. |
-| **Adjust image** | Brightness, contrast, saturation, exposure, temperature, shadows, highlights and sepia. |
-| **Rotate & flip** | Rotates and mirrors images without changing the original file. |
-| **Text & watermark** | Interactive text that can be moved, scaled and rotated with mouse or touch. |
-| **Redact image** | Solid block, pixelation or strong blur baked into the final raster image. |
-
----
-
-## Local processing
-
-Heavy processing runs in a **Web Worker** so the interface remains responsive.
-
-```text
-Interface
-   │
-   └── Web Worker
-         ├── ONNX Runtime Web ── U2NetP
-         ├── WebAssembly ─────── VTracer / codecs
-         ├── Pica ────────────── resampling
-         └── Canvas / OffscreenCanvas
-```
-
-Background removal uses **WebGPU** when supported by the browser and device, and automatically falls back to **WebAssembly** otherwise.
-
-Models, WASM engines and fonts are served with the application. The AI model can be cached by the browser to avoid downloading it on every use.
-
----
+| **Compress image** | Reduces file size and displays the estimated savings before export. |
+| **Convert format** | Converts between JPEG, PNG, WebP, and AVIF. |
+| **Resize** | Changes dimensions with optional aspect locking and quality resampling. |
+| **Crop** | Free or fixed-ratio cropping with zoom, rotation, flipping, and exact dimensions. |
+| **Remove background** | Automatically separates the subject with AI running in the browser. |
+| **Vectorize** | Converts raster images into color, logo, signature, outline, or silhouette SVG. |
+| **Adjust image** | Controls brightness, contrast, exposure, saturation, temperature, shadows, and highlights. |
+| **Rotate and flip** | Fixes orientation or creates a mirrored image. |
+| **Text and watermark** | Adds, moves, scales, and rotates text with mouse or touch input. |
+| **Hide data** | Rasterizes a solid block, pixelation, or blur over sensitive information. |
 
 ## Privacy
 
-- Images are processed on the device.
-- No Trazo account is required.
-- The original file is never overwritten.
-- Exports are generated as new files.
-- The **Redact** tool bakes solid blocks, pixelation and blur into the output instead of leaving removable layers.
-- Exports are re-encoded, so original EXIF metadata is not preserved.
-
-Trazo does not claim forensic anonymization or perfect background extraction for every image. Quality depends on image content, browser capabilities and available device memory.
-
----
+- Images are never sent to a processing API or server.
+- The original file is never modified.
+- Raster exports are re-encoded without copying the original EXIF metadata.
+- Redactions are permanently baked into the exported pixels.
+- Models and codecs are static app resources that the browser can cache locally.
 
 ## Technology
 
-- **React + Vite** — interface and static build.
-- **ONNX Runtime Web + U2NetP** — background segmentation.
-- **VTracer WASM** — raster-to-SVG vectorization.
-- **Pica** — high-quality resizing.
-- **jSquash / MozJPEG / WebP / AVIF / Oxipng** — compression and conversion.
-- **Cropper.js** — interactive crop controls.
-- **Konva** — text and watermark manipulation.
-- **SVGO** — SVG optimization.
+- **ISNet General**, with **U2NetP** as a lightweight alternative, for background removal.
+- **ONNX Runtime Web**, using WebGPU when available and WebAssembly as a fallback.
+- **VTracer WASM** and **SVGO** for SVG creation and optimization.
+- **Pica** for high-quality resizing.
+- **jSquash**, MozJPEG, WebP, AVIF, and Oxipng for compression and conversion.
+- **Cropper.js** for cropping and **Konva** for text and watermarks.
+- **Web Workers**, stale-result cancellation, and mask caching to keep the interface responsive.
 
-See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for the dependency, model and license inventory.
+The first build downloads and verifies the official ISNet weights. The first use of Remove background downloads approximately 179 MB, which the browser may cache for later sessions.
 
----
+## Development
 
-## Compatibility
+Node.js 22.13 or newer is required.
 
-Trazo targets modern browsers with Web Workers, WebAssembly and OffscreenCanvas. WebGPU is optional.
-
-Main input formats:
-
-```text
-PNG · JPG/JPEG · WebP · AVIF
+```bash
+npm ci
+npm run dev
 ```
 
-Processing limits are enforced to avoid locking up devices with extremely large files. Low-memory phones may need smaller images even when a file is technically within the accepted limits.
+Create the static site with:
 
----
-
-## Repository structure
-
-```text
-Trazo/
-├── .github/              Repository metadata and Ko-fi funding
-├── app/                  Pages, styles and metadata
-├── components/           Interface and editors
-├── lib/engine/           Image engine and Web Worker
-├── public/               Models, WASM, icons and licenses
-├── scripts/              Build, packaging and static routes
-├── tests/                Tests and fixtures
-├── docs/                 Compiled GitHub Pages site
-├── README.md
-└── README.en.md
+```bash
+npm run build
 ```
 
-`docs/` contains the static site ready for GitHub Pages while the source stays at the repository root.
+The result is written to `dist/` and requires no backend.
 
-For development, builds and tests, see [CONTRIBUTING.md](CONTRIBUTING.md).
+## GitHub Pages
 
----
+The repository includes a ready-to-use Pages workflow. After pushing the files to the `main` branch, open **Settings → Pages** and select **GitHub Actions** as the source. Every push will build and publish Trazo automatically.
 
-## Validation
-
-The project includes tests for all ten modules, transparency, large images, privacy modes, vectorization and background-removal cases with people, objects and fur/hair.
-
-Known limits and validation notes are documented in [VALIDATION.md](VALIDATION.md).
-
----
-
-## ☕ Support the project
-
-Trazo is free and open source.
-
-If Trazo is useful to you, or you simply like what I am building, you can support its development on Ko-fi. Support helps improve the processing engines, compatibility and future tools.
-
-**[☕ Support Trazo on Ko-fi](https://ko-fi.com/silverpsycho)**
-
-Using Trazo, sharing it and reporting issues are also great ways to help the project. 💚
-
----
+Routes and assets use relative paths, so the app works at an address such as `https://username.github.io/repository/`.
 
 ## License
 
-Trazo is distributed under **GNU AGPL-3.0-or-later**. See [LICENSE.md](LICENSE.md).
+Trazo is released under **GNU AGPL-3.0-or-later**. Libraries, codecs, fonts, and models retain their respective licenses, included in `public/licenses/` and summarized in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 
-Third-party libraries, codecs, models and fonts retain their own licenses and notices. They are included under `public/licenses/` and documented in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+## Support the project
 
----
+If you enjoy Trazo and want to support the development of my projects, you can do so on [Ko-fi](https://ko-fi.com/silverpsycho).
 
-## Author
+<div align="center">
 
-Developed by **SilverPsycho**
+Made by **SilverPsycho** · [GitHub](https://github.com/SilverPsychoo) · [Ko-fi](https://ko-fi.com/silverpsycho)
 
-GitHub: [@SilverPsychoo](https://github.com/SilverPsychoo)  
-Ko-fi: [ko-fi.com/silverpsycho](https://ko-fi.com/silverpsycho)
+</div>

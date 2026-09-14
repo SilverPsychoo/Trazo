@@ -1,6 +1,8 @@
-import { mkdirSync, copyFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, copyFileSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 mkdirSync('public/vendor/onnx',{recursive:true});
-for(const name of ['ort-wasm-simd-threaded.jsep.mjs','ort-wasm-simd-threaded.jsep.wasm','ort-wasm-simd-threaded.mjs','ort-wasm-simd-threaded.wasm'])copyFileSync('node_modules/onnxruntime-web/dist/'+name,'public/vendor/onnx/'+name);
+for(const name of ['ort-wasm-simd-threaded.jsep.mjs','ort-wasm-simd-threaded.jsep.wasm'])copyFileSync('node_modules/onnxruntime-web/dist/'+name,'public/vendor/onnx/'+name);
+// The WebGPU entry also uses the JSEP runtime for WASM fallback.
+for(const name of ['ort-wasm-simd-threaded.mjs','ort-wasm-simd-threaded.wasm'])rmSync('public/vendor/onnx/'+name,{force:true});
 // Official VTracer WASM unchanged. Only the Node filesystem loader becomes async browser fetch.
 mkdirSync('public/vendor/vtracer',{recursive:true});
 let text=readFileSync('node_modules/@visioncortex/vtracer/pkg/vtracer_wasm.js','utf8');

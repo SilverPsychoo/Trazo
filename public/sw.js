@@ -1,5 +1,5 @@
 // Runtime cache contains app resources only. User photos/results are never persisted.
-const CACHE='trazo-assets-2026-09-v1';
+const CACHE='trazo-assets-2026-09-auto2';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
   for(const key of await caches.keys())if(key.startsWith('trazo-assets-')&&key!==CACHE)await caches.delete(key);

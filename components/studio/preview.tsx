@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { LiveResult } from './live-result';
 import { CropEditor } from './crop-editor';
 import { TextEditor } from './text-editor';
 import type { Settings } from '@/lib/processing';
@@ -27,8 +28,9 @@ export function Preview({
   setBackdrop,
   rect,
   setRect,
-  cancel, progress, settings, setSettings,
+  cancel, progress, settings, setSettings, sample, live,
 }: {
+  sample?: ImageData; live: boolean;
   lang: Locale;
   toolId: ToolId;
   source: SourceImage;
@@ -130,15 +132,15 @@ export function Preview({
               <span>
                 {fresh
                   ? t('Listo para revisar', 'Ready to review')
-                  : t('Pendiente de actualizar', 'Preview needs updating')}
+                  : t('Actualizando…', 'Updating…')}
               </span>
             </div>
             <div
-              className={`image-viewport backdrop-${backdrop} ${!fresh && resultUrl ? 'outdated' : ''}`}
+              className={`image-viewport backdrop-${backdrop} `}
               style={backdrop==='custom'?{background:customColor}:undefined}
               aria-busy={busy}
             >
-              {resultUrl ? (
+              {live&&sample ? <div className="zoom-surface" style={{width:`${zoom}%`}}><LiveResult sample={sample} settings={settings} tool={toolId} width={source.width} label={t('Vista previa del resultado','Result preview')}/></div> : resultUrl ? (
                 <div className="zoom-surface" style={{ width: `${zoom}%` }}>
                   <img
                     src={resultUrl}
@@ -159,15 +161,7 @@ export function Preview({
                     )}
                   </p>
                   <small>
-                    {toolId === 'vector' || toolId === 'background'
-                      ? t(
-                          'Elige los ajustes y crea tu vista previa.',
-                          'Choose your settings and create a preview.',
-                        )
-                      : t(
-                          'Se actualiza al cambiar los ajustes.',
-                          'It updates when you change a setting.',
-                        )}
+                    {t('Trazo analiza y prepara el resultado automáticamente.','Trazo analyzes and prepares your result automatically.')}
                   </small>
                 </Empty>
               )}
@@ -194,8 +188,8 @@ export function Preview({
               <Check />
               <span>
                 {t(
-                  'Estás viendo el archivo que se descargará.',
-                  'You are viewing the file that will be downloaded.',
+                  'Tus ajustes se aplicarán al original al descargar.',
+                  'Your settings will be applied to the original on download.',
                 )}
               </span>
             </>
@@ -205,8 +199,8 @@ export function Preview({
               <span>
                 {message ||
                   t(
-                    'Actualiza la vista previa antes de descargar.',
-                    'Update the preview before downloading.',
+                    'Preparando tu resultado…',
+                    'Preparing your result…',
                   )}
               </span>
             </>

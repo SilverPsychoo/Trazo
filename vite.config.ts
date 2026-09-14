@@ -12,6 +12,11 @@ export default defineConfig({
   css: {
     postcss: { plugins: [tailwindcss()] },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 4173,
+    strictPort: true,
+  },
   worker: { format: 'es' },
   optimizeDeps: {
     exclude: [

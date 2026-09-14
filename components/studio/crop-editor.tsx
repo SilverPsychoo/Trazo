@@ -11,7 +11,7 @@ export function CropEditor({source,s,set,label}:{source:SourceImage;s:Settings;s
   useEffect(()=>{
     if(!image.current)return;
     let ready=false;
-    const c=new Cropper(image.current,{viewMode:1,dragMode:'move',autoCropArea:.8,responsive:true,restore:false,checkOrientation:true,background:false,zoomOnWheel:true,toggleDragModeOnDblclick:false,
+    const c=new Cropper(image.current,{viewMode:1,dragMode:'move',autoCropArea:1,responsive:true,restore:false,checkOrientation:true,background:false,zoomOnWheel:true,toggleDragModeOnDblclick:false,
       ready(){ready=true;readyRef.current=true;c.setAspectRatio(current.current.cropAspect||NaN);if(current.current.cropData)c.setData(current.current.cropData);sync();},crop(){if(ready)sync();}});
     function sync(){
       const data=c.getData(true),next={x:data.x,y:data.y,width:Math.max(1,data.width),height:Math.max(1,data.height),rotate:data.rotate||0,scaleX:data.scaleX??1,scaleY:data.scaleY??1};

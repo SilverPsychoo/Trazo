@@ -12,13 +12,13 @@ export async function resize(data: ImageData, width: number, height: number, fas
   const result = await resizer.resizeBuffer({ src: data.data, width: data.width, height: data.height, toWidth: width, toHeight: height, filter: fast ? 'box' : 'mks2013' });
   return new ImageData(new Uint8ClampedArray(result), width, height);
 }
-export async function decode(blob: Blob) {
+export async function decode(blob: Blob, maxSide=Infinity) {
   let bitmap: ImageBitmap;
   try { bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' }); }
   catch { throw Error('invalid_image'); }
   try {
-    const { canvas, ctx } = surface(bitmap.width, bitmap.height);
-    ctx.drawImage(bitmap, 0, 0);
+    const { canvas, ctx } = surface(bitmap.width*Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height)), bitmap.height*Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height)));
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     const result = ctx.getImageData(0, 0, canvas.width, canvas.height);
     canvas.width = canvas.height = 1;
     return result;

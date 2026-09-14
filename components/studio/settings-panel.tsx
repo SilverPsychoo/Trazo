@@ -26,6 +26,7 @@ type Props = {
   set: (v: Partial<Settings>) => void;
   width: number;
   height: number;
+  hasAlpha: boolean;
 };
 function Range({
   label,
@@ -134,7 +135,7 @@ function ColorField({
     </div>
   );
 }
-export function SettingsPanel({ lang, toolId, s, set, width, height }: Props) {
+export function SettingsPanel({ lang, toolId, s, set, width, height, hasAlpha }: Props) {
   const t = (es: string, en: string) => (lang === 'es' ? es : en);
   const size = (axis: 'width' | 'height', value: number) =>
     set(
@@ -203,7 +204,7 @@ export function SettingsPanel({ lang, toolId, s, set, width, height }: Props) {
                 label={t('Número de colores', 'Number of colors')}
                 value={s.colors}
                 min={2}
-                max={32}
+                max={64}
                 onChange={(colors) => set({ colors })}
               />
               <Toggle
@@ -241,7 +242,7 @@ export function SettingsPanel({ lang, toolId, s, set, width, height }: Props) {
           <Range label={t('Suavizado','Smoothing')} value={s.vectorSmooth} onChange={vectorSmooth=>set({vectorSmooth})}/>
           <Range label={t('Simplificación','Simplification')} value={s.simplify} onChange={simplify=>set({simplify})}/>
           <Range label={t('Precisión de curvas','Curve precision')} value={s.precision} min={1} max={4} onChange={precision=>set({precision})}/>
-          <Range label={t('Eliminar ruido pequeño','Remove small specks')} value={s.despeckle} max={32} suffix=" px" onChange={despeckle=>set({despeckle})}/>
+          <Range label={t('Eliminar ruido pequeño','Remove small specks')} value={s.despeckle} max={64} suffix=" px" onChange={despeckle=>set({despeckle})}/>
           <p className="control-note">
             {t(
               'Logos e ilustraciones sencillas dan los mejores resultados. Acerca la vista para revisar los bordes.',
@@ -264,6 +265,7 @@ export function SettingsPanel({ lang, toolId, s, set, width, height }: Props) {
         <Toggle label={t('Añadir un color de fondo','Add a background color')} value={s.addBackground} onChange={addBackground=>set({addBackground})}/>
         {s.addBackground&&<ColorField label={t('Color de fondo','Background color')} value={s.backgroundColor} onChange={backgroundColor=>set({backgroundColor})}/>}
       </>}
+      {toolId==='background'&&<Range label={t('Contraste de máscara','Mask contrast')} value={s.maskContrast} min={50} max={180} onChange={maskContrast=>set({maskContrast})}/>}
       {(toolId === 'compress' || toolId === 'convert') && (
         <>
           <div className="field-title">
@@ -317,7 +319,7 @@ export function SettingsPanel({ lang, toolId, s, set, width, height }: Props) {
                     'WebP supports small files and transparency.',
                   )}
           </p>
-          {s.format==='jpeg'&&<ColorField label={t('Fondo para transparencia','Transparency background')} value={s.backgroundColor} onChange={backgroundColor=>set({backgroundColor})}/>}
+          {s.format==='jpeg'&&hasAlpha&&<ColorField label={t('Fondo para transparencia','Transparency background')} value={s.backgroundColor} onChange={backgroundColor=>set({backgroundColor})}/>}
           {s.format==='avif'&&<p className="control-note">{t('AVIF puede tardar más, especialmente con fotos grandes.','AVIF can take longer, especially for large photos.')}</p>}
           {toolId === 'compress' && (
             <>

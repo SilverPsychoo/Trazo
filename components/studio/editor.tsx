@@ -57,14 +57,13 @@ export default function Editor({
     setBackdrop,
     input,
     demoIcon,
-    expensive,
+    analysis, sample, live, exporting, exportFile, exact, downloadUrl, optimizedUrl,
     fresh,
     canDownload,
     set,
     accept,
     clear,
     demo,
-    generate,
     cancel,
     reset,
   } = useEditor(lang, toolId);
@@ -112,21 +111,21 @@ export default function Editor({
                 </li>
                 <li>
                   {t(
-                    'En vectorización y borrado de fondo, pulsa Crear vista previa. Las demás se actualizan automáticamente.',
-                    'For vectorization and background removal, press Create preview. Other tools update automatically.',
+                    'Trazo analiza tu imagen y prepara el resultado automáticamente. Los ajustes avanzados son opcionales.',
+                    'Trazo analyzes your image and prepares the result automatically. Advanced settings are optional.',
                   )}
                 </li>
                 <li>
                   {t(
-                    'Descarga cuando estés conforme. Guardarás el mismo archivo de la vista previa.',
-                    'Download when you are happy. You will save the exact file shown in the preview.',
+                    'Descarga cuando estés conforme. Se aplican tus ajustes a la resolución original.',
+                    'Download when you are happy. Your settings are applied at original resolution.',
                   )}
                 </li>
               </ol>
               <p className="control-note">
                 {t(
-                  'El resultado conserva la resolución original salvo al redimensionar o recortar. Los vectores se analizan a hasta 1800 px y conservan las medidas de salida originales.',
-                  'Results keep the original resolution except when resizing or cropping. Vectors are analyzed at up to 1800 px and retain original output dimensions.',
+                  'La preview es ligera para editar con fluidez. La descarga usa el original completo, salvo las medidas que elijas al redimensionar o recortar.',
+                  'The lightweight preview keeps editing responsive. Download uses the full original, except dimensions you choose when resizing or cropping.',
                 )}
               </p>
               <DialogClose className="primary">
@@ -223,6 +222,7 @@ export default function Editor({
             ) : (
               <Preview
                 lang={lang}
+                sample={sample} live={live}
                 progress={progress}
                 settings={settings}
                 setSettings={set}
@@ -268,171 +268,30 @@ export default function Editor({
             </div>
           </section>
           <aside className="settings editor-settings">
-            <div className="settings-title">
-              <span>
-                <SlidersHorizontal />
-                {t('Ajustes', 'Settings')}
-              </span>
-              <button
-                className="text-button"
-                disabled={!source || loading}
-                onClick={reset}
-              >
-                <RotateCcw />
-                {t('Restablecer', 'Reset')}
-              </button>
-            </div>
+            <div className="settings-title"><span><SlidersHorizontal/>{t('Tu resultado','Your result')}</span><button className="text-button" disabled={!source||loading} onClick={()=>void reset()} title={t('Volver a analizar esta imagen','Analyze this image again')}><RotateCcw/>✨ Auto</button></div>
             <div className="settings-body">
-              <fieldset disabled={!source || loading}>
-                <SettingsPanel
-                  lang={lang}
-                  toolId={toolId}
-                  s={settings}
-                  set={set}
-                  width={source?.width || 1200}
-                  height={source?.height || 1200}
-                />
-              </fieldset>
-              {expensive ? (
-                <button
-                  className="primary process-button"
-                  disabled={!source || busy || loading}
-                  onClick={() => void generate()}
-                >
-                  {busy ? <LoaderCircle className="spin" /> : <Eye />}
-                  {result
-                    ? t('Actualizar vista previa', 'Update preview')
-                    : t('Crear vista previa', 'Create preview')}
-                </button>
-              ) : (
-                <p className="auto-preview">
-                  <Eye />
-                  {t('Vista previa automática', 'Automatic preview')}
-                  {source && !fresh && !busy && !loading && (
-                    <button
-                      className="text-button"
-                      onClick={() => void generate()}
-                    >
-                      {t('Actualizar', 'Update')}
-                    </button>
-                  )}
-                </p>
-              )}
               {notice&&<p className="export-warning" role="status">{notice}</p>}
-              {error && (
-                <div className="message error" role="alert">
-                  <p>{error}</p>
-                  {source && (
-                    <button
-                      className="text-button"
-                      disabled={busy || loading}
-                      onClick={() => void generate()}
-                    >
-                      {t('Reintentar', 'Try again')}
-                    </button>
-                  )}
-                </div>
-              )}
-              <div className="export-panel">
-                <div className="export-heading">
-                  {t('Tu archivo de salida', 'Your output file')}
-                </div>
-                {result && (
-                  <>
-                    <div className={`output-stats ${!fresh ? 'muted' : ''}`}>
-                      <strong>{result.extension.toUpperCase()}</strong>
-                      <span>{formatBytes(result.blob.size)}</span>
-                      <span>
-                        {result.width} × {result.height} px
-                      </span>
-                    </div>
-                    {result.paths !== undefined && (
-                      <p className="control-note">
-                        {result.paths}{' '}
-                        {t('trazados vectoriales', 'vector paths')}
-                      </p>
-                    )}
-                    {fresh && toolId === 'compress' && source && (
-                      <p className="compression-saving">
-                        {result.blob.size <= source.blob.size
-                          ? `${((1 - result.blob.size / source.blob.size) * 100).toFixed(1)}% ${t('menos peso', 'smaller')}`
-                          : t(
-                              'Este resultado pesa más que el original.',
-                              'This result is larger than the original.',
-                            )}
-                      </p>
-                    )}
-                    {fresh && !result.goalMet && (
-                      <p className="export-warning" role="alert">
-                        {t(
-                          'No se alcanzó el peso máximo. Sube el límite o cambia el formato para poder descargar.',
-                          'The maximum file size was not reached. Increase the limit or change the format to download.',
-                        )}
-                      </p>
-                    )}
-                    {fresh && result.note === 'already_optimized' && (
-                      <p className="control-note">
-                        {t(
-                          'El original ya pesaba menos; lo conservamos para evitar perder calidad.',
-                          'The original was already smaller; we kept it to avoid losing quality.',
-                        )}
-                      </p>
-                    )}
-                    {fresh && result.note === 'format_fallback' && (
-                      <p className="export-warning">
-                        {t(
-                          'Tu navegador no admite ese formato. Revisa el formato real indicado arriba.',
-                          'Your browser does not support that format. Check the actual output format above.',
-                        )}
-                      </p>
-                    )}
-                    {fresh &&
-                      source &&
-                      toolId !== 'crop' &&
-                      toolId !== 'resize' &&
-                      toolId !== 'rotate' &&
-                      (result.width < source.width ||
-                        result.height < source.height) && (
-                        <p className="control-note">
-                          {t(
-                            'Se adaptaron las dimensiones para procesar esta imagen en tu dispositivo.',
-                            'Dimensions were fitted to process this image on your device.',
-                          )}
-                        </p>
-                      )}
-                  </>
-                )}
-                {result&&source&&toolId==='compress'&&<p className="control-note">{t('Original','Original')}: {formatBytes(source.blob.size)}<br/>{t('Resultado','Result')}: {formatBytes(result.blob.size)}</p>}
-                {canDownload&&result?.optimizedUrl&&source&&<a className="secondary-button" href={result.optimizedUrl} download={`${source.name.replace(/\.[^.]+$/, '')}-optimized.svg`}>{t('Descargar SVG optimizado','Download optimized SVG')} · {formatBytes(result.optimizedBlob!.size)}</a>}
-                {canDownload && result && source ? (
-                  <a
-                    className="primary download-button"
-                    href={result.url}
-                    download={`${source.name.replace(/\.[^.]+$/, '')}-${tool.slug}.${result.extension}`}
-                  >
-                    <Download />
-                    {t('Descargar', 'Download')}{' '}
-                    {result.extension.toUpperCase()}
-                  </a>
-                ) : (
-                  <button className="primary download-button" disabled>
-                    <Download />
-                    {t('Descargar', 'Download')}
-                    {result && ` ${result.extension.toUpperCase()}`}
-                  </button>
-                )}
-                <p className="export-hint">
-                  {canDownload
-                    ? t(
-                        'Descargarás exactamente la vista previa actual.',
-                        'You will download exactly the current preview.',
-                      )
-                    : t(
-                        'Primero revisa una vista previa actualizada.',
-                        'First review an up-to-date preview.',
-                      )}
-                </p>
+              {error&&<div className="message error" role="alert"><p>{error}</p>{source&&<button className="text-button" disabled={loading} onClick={()=>void reset()}>{t('Reintentar con Auto','Try Auto again')}</button>}</div>}
+              <div className="export-panel auto-export">
+                <div className="export-heading">{t('Tu archivo de salida','Your output file')}</div>
+                {source&&toolId==='resize'&&<p className="control-note">{t('Original','Original')}: {source.width} × {source.height} px · {analysis?.orientation==='portrait'?t('Vertical','Portrait'):analysis?.orientation==='landscape'?t('Horizontal','Landscape'):t('Cuadrada','Square')}</p>}
+                {result&&<>
+                  <div className="output-stats"><strong>{result.extension.toUpperCase()}</strong><span>{exact?formatBytes(result.blob.size):result.estimatedBytes?`≈ ${formatBytes(result.estimatedBytes)}`:''}</span><span>{result.width} × {result.height} px</span></div>
+                  {toolId==='compress'&&source&&<>
+                    <p className="control-note">{t('Original','Original')}: {formatBytes(source.blob.size)}<br/>{exact?t('Optimizada','Optimized'):t('Optimizada · estimación','Optimized · estimate')}: {exact?formatBytes(result.blob.size):`≈ ${formatBytes(result.estimatedBytes||result.blob.size)}`}</p>
+                    <p className="compression-saving">{!exact?'≈ ':''}{((1-(exact?result.blob.size:result.estimatedBytes||result.blob.size)/source.blob.size)*100).toFixed(1)}% {t('reducción','reduction')}</p>
+                  </>}
+                  {result.paths!==undefined&&<p className="control-note">{result.paths} {t('trazados en preview','paths in preview')}</p>}
+                </>}
+                {downloadUrl&&canDownload?<a className="primary download-button" href={downloadUrl} download={`${source?.name.replace(/\.[^.]+$/, '')}-${tool.slug}.${result?.extension}`}><Download/>{t('Descargar','Download')} {result?.extension.toUpperCase()}</a>:<button className="primary download-button" disabled={!canDownload} onClick={()=>void exportFile()}>{exporting?<LoaderCircle className="spin"/>:<Download/>}{exporting?t('Exportando…','Exporting…'):t('Descargar','Download')}{result&&!exporting?` ${result.extension.toUpperCase()}`:''}</button>}
+                {toolId==='vector'&&result&&(optimizedUrl&&canDownload?<a className="secondary-button" href={optimizedUrl} download={`${source?.name.replace(/\.[^.]+$/, '')}-optimized.svg`}>{t('Descargar SVG optimizado','Download optimized SVG')}</a>:<button className="secondary-button" disabled={!canDownload} onClick={()=>void exportFile(true)}>{t('Descargar SVG optimizado','Download optimized SVG')}</button>)}
+                <p className="export-hint">{source?t('Preview ligera · Descarga a resolución completa.','Lightweight preview · Full resolution download.'):t('Elige una imagen. Trazo prepara el resultado.','Choose an image. Trazo prepares the result.')}</p>
               </div>
+              <details className="advanced-settings">
+                <summary>{t('Ajustes avanzados','Advanced settings')}</summary>
+                <p className="auto-preview"><Eye/>{t('Los cambios se muestran automáticamente','Changes preview automatically')}</p>
+                <fieldset disabled={!source||loading}><SettingsPanel lang={lang} toolId={toolId} s={settings} set={set} width={source?.width||1200} height={source?.height||1200} hasAlpha={analysis?.hasAlpha??false}/></fieldset>
+              </details>
             </div>
           </aside>
         </div>
