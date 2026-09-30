@@ -46,3 +46,79 @@
 .live-result {display:block;width:100%;height:auto;max-width:100%;}
 .download-button {width:100%;}
 @media(max-width:640px){.settings-body{padding:18px}.advanced-settings summary{min-height:48px}.setting-group [role=slider]{min-width:24px;min-height:24px}.text-stage{touch-action:none}}
+
+/* Quiet interface pass: fewer decorative layers, clearer actions. */
+body{background:#f6f7f6}
+.studio{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:76px;padding-inline:5%;gap:18px}
+.brand{font-size:31px;letter-spacing:-1.8px}
+.brand-icon{width:30px;height:30px;margin-right:9px;border-radius:7px;overflow:hidden}
+.brand-icon img{display:block;width:30px;height:30px}
+.header-actions{gap:18px}
+.all-tools-link{color:#59685f}
+.support-link{background:#fff;border-color:#d7ded8;color:#405349;font-weight:550}
+.support-link:hover{background:#f0f4f0;border-color:#b8c6ba}
+.language-switch{border-color:#d9dfda;background:#f8faf8}
+.language-switch a[aria-current]{background:#e8efe6;color:#35503d}
+.catalog-main{width:100%;max-width:1380px;padding:58px 5% 54px;flex:1}
+.catalog-heading{display:block;margin:0 0 26px}
+.catalog-heading h1{margin:0;font-size:clamp(32px,3vw,42px);font-weight:620;letter-spacing:-1.5px}
+.catalog-search{max-width:680px;margin:0 0 17px;padding:6px 14px;border-color:#d8dfd9;border-radius:9px;box-shadow:none}
+.catalog-search input{min-height:39px;font-size:15px}
+.category-filters{gap:5px;margin-bottom:29px}
+.category-pill{padding:9px 13px;border-radius:7px;color:#59685f}
+.category-pill.active{background:#294936}
+.category-pill:hover:not(.active){background:#e9eeea}
+.tool-grid{gap:14px}
+.tool-card{min-height:188px;padding:20px;border-color:#dde3de;border-radius:10px;box-shadow:none}
+.tool-card:hover{border-color:#8fa694;transform:none;box-shadow:0 5px 16px rgba(35,51,44,.055)}
+.tool-card-top{margin-bottom:20px}
+.tool-icon{width:40px;height:40px;border-radius:8px;background:#edf5df;color:#658040}
+.tone-blue .tool-icon{background:#eaf1fb;color:#6888aa}
+.tone-orange .tool-icon{background:#fff1e4;color:#a87349}
+.tone-purple .tool-icon{background:#f1ebfb;color:#866ca8}
+.tool-card h3{font-size:17px;font-weight:620;margin-bottom:8px}
+.tool-card p{font-size:14px;line-height:1.55;color:#647169;margin:0}
+.search-empty{border-radius:10px}
+.site-footer{margin-top:auto;padding:18px 5%;align-items:center;color:#657269;background:#fff}
+.site-footer>span:first-child{font-size:16px;color:#405348}
+.footer-links{gap:18px}
+.footer-links a{color:#526259}
+
+.editor-main{width:100%;max-width:1500px;margin:0 auto;padding-inline:5%;flex:1}
+.editor-canvas,.settings{border-radius:10px}
+.editor-canvas .drop-zone{background:#fafbfa;border-color:#cfd8d1;border-radius:7px}
+.upload-icon{width:64px;height:64px;border-radius:12px;background:#e9f0e6;border-color:#cbd9cb}
+.upload-icon svg{width:27px;height:27px}
+.help-trigger{border:0;background:transparent;padding:7px 0}
+.editor-settings .settings-title{height:58px}
+.editor-settings .settings-title .text-button{padding:7px}
+.auto-export.export-panel{gap:12px}
+.advanced-settings{margin-top:18px}
+.advanced-settings summary{font-weight:550;color:#3f5046}
+.help-dialog{border-radius:10px!important}
+
+@media(max-width:1100px){
+  .catalog-main,.editor-main{padding-inline:3%}
+  .tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:780px){
+  .topbar{height:68px;padding-inline:18px}
+  .brand{font-size:28px}
+  .catalog-main{padding:34px 18px 42px}
+  .catalog-heading{margin-bottom:22px}
+  .catalog-heading h1{font-size:31px}
+  .catalog-search{max-width:none}
+  .category-filters{margin-bottom:22px}
+  .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tool-card{min-height:176px;padding:17px}
+  .tool-card-top{margin-bottom:17px}
+  .site-footer{padding:20px 18px;align-items:flex-start}
+  .editor-main{padding-inline:18px}
+}
+@media(max-width:460px){
+  .tool-grid{grid-template-columns:1fr}
+  .tool-card{min-height:154px}
+  .category-pill{padding:9px 11px}
+  .site-footer>span:nth-child(2){order:3}
+}

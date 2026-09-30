@@ -16,8 +16,8 @@ export const catalog = [
     category: 'optimize',
     name: ['Comprimir imagen', 'Compress image'],
     description: [
-      'Reduce el peso y comprueba la calidad antes de guardar.',
-      'Reduce file size and check the quality before saving.',
+      'Reduce el peso de la imagen manteniendo la calidad.',
+      'Reduce image size while preserving quality.',
     ],
     keywords:
       'comprimir reducir peso tamaño kb mb optimizar compress reduce file size jpg jpeg png webp',
@@ -29,8 +29,8 @@ export const catalog = [
     category: 'optimize',
     name: ['Convertir formato', 'Convert format'],
     description: [
-      'Convierte entre JPG, PNG y WebP con vista previa.',
-      'Convert between JPG, PNG and WebP with a preview.',
+      'Cambia entre JPG, PNG, WebP y AVIF.',
+      'Convert between JPG, PNG, WebP and AVIF.',
     ],
     keywords: 'convertir png jpg jpeg webp formato convertir convert format',
     color: 'blue',
@@ -54,8 +54,8 @@ export const catalog = [
     category: 'edit',
     name: ['Recortar imagen', 'Crop image'],
     description: [
-      'Encuadra lo importante y ve el recorte al instante.',
-      'Choose what to keep and preview your crop instantly.',
+      'Recorta con medidas o proporciones exactas.',
+      'Crop with exact dimensions or aspect ratios.',
     ],
     keywords: 'recortar encuadrar cuadrado crop trim square aspect ratio',
     color: 'orange',
@@ -66,8 +66,8 @@ export const catalog = [
     category: 'design',
     name: ['Quitar fondo', 'Remove background'],
     description: [
-      'Elimina el fondo y revisa los bordes con zoom.',
-      'Remove the background and zoom in to check the edges.',
+      'Separa el sujeto y exporta un fondo transparente.',
+      'Isolate the subject and export a transparent background.',
     ],
     keywords:
       'quitar eliminar borrar cambiar fondo blanco transparente remove bg background transparent white',
@@ -92,8 +92,8 @@ export const catalog = [
     category: 'edit',
     name: ['Ajustar imagen', 'Adjust image'],
     description: [
-      'Ajusta brillo, contraste y color sin tocar el original.',
-      'Adjust brightness, contrast and color; keep your original.',
+      'Corrige brillo, contraste, color y exposición.',
+      'Correct brightness, contrast, color and exposure.',
     ],
     keywords:
       'ajustar brillo contraste saturacion color blanco negro editar adjust brightness contrast saturation grayscale edit',
@@ -118,8 +118,8 @@ export const catalog = [
     category: 'design',
     name: ['Texto y marca de agua', 'Text & watermark'],
     description: [
-      'Añade texto con tamaño, color y posición a tu gusto.',
-      'Add text with your choice of size, color and position.',
+      'Añade y coloca texto sobre la imagen.',
+      'Add and position text over the image.',
     ],
     keywords:
       'texto escribir marca agua firma proteger text watermark caption label signature',
@@ -131,8 +131,8 @@ export const catalog = [
     category: 'privacy',
     name: ['Ocultar datos', 'Hide private details'],
     description: [
-      'Cubre datos personales con un bloque opaco.',
-      'Cover personal details with an opaque block.',
+      'Oculta datos con bloque, desenfoque o pixelado.',
+      'Hide details with a block, blur or pixelation.',
     ],
     keywords:
       'ocultar censurar tapar datos privacidad caras matricula redact privacy hide cover censor',

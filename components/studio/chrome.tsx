@@ -12,9 +12,6 @@ export function Header({ lang, slug }: { lang: Locale; slug?: string }) {
         </span>
         trazo<span className="brand-dot">.</span>
       </a>
-      <span className="header-note">
-        {lang === 'es' ? 'HERRAMIENTAS DE IMAGEN' : 'IMAGE TOOLS'}
-      </span>
       <nav
         className="header-actions"
         aria-label={lang === 'es' ? 'Navegación principal' : 'Main navigation'}
@@ -59,16 +56,11 @@ export function Footer({ lang }: { lang: Locale }) {
   return (
     <footer className="site-footer">
       <span>
-        trazo.{' '}
-        <span>
-          {lang === 'es' ? 'Hecho para crear.' : 'Made for creating.'}
-        </span>
+        trazo.
       </span>
       <span>
         <ShieldCheck size={14} />
-        {lang === 'es'
-          ? 'Tus imágenes se procesan en tu dispositivo.'
-          : 'Your images are processed on your device.'}
+        {lang === 'es' ? 'Procesamiento local' : 'Local processing'}
       </span>
       <span className="footer-links">
         <a href="https://ko-fi.com/silverpsycho" target="_blank" rel="noopener noreferrer">
@@ -76,7 +68,7 @@ export function Footer({ lang }: { lang: Locale }) {
           {lang === 'es' ? 'Apoyar en Ko-fi' : 'Support on Ko-fi'}
         </a>
         <a href={publicPath("trazo-source.zip")} download>
-          {lang === 'es' ? 'Código abierto' : 'Open source'}
+          {lang === 'es' ? 'Código fuente' : 'Source code'}
           <ArrowUpRight size={13} />
         </a>
       </span>

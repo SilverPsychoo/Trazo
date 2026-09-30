@@ -2,10 +2,8 @@
 import { useState } from 'react';
 
 import {
-  ArrowUpRight,
   Search,
   X,
-  ScanLine,
   Scaling,
   Crop,
   WandSparkles,
@@ -16,8 +14,6 @@ import {
   Shield,
   Minimize2,
   RefreshCw,
-  Eye,
-  ShieldCheck,
 } from 'lucide-react';
 import { Empty } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
@@ -57,34 +53,7 @@ export default function Catalog({ lang }: { lang: Locale }) {
       <Header lang={lang} />
       <main className="catalog-main">
         <div className="catalog-heading">
-          <div>
-            <span className="eyebrow">
-              {t(
-                'PEQUEÑOS CAMBIOS. GRANDES POSIBILIDADES.',
-                'SMALL CHANGES. MORE POSSIBILITIES.',
-              )}
-            </span>
-            <h1>
-              {t(
-                'Tus imágenes, como las necesitas.',
-                'Your images. Just how you need them.',
-              )}
-              <span className="title-dot">*</span>
-            </h1>
-            <p>
-              {t(
-                'Elige una herramienta. Ajusta, revisa y descarga.',
-                'Choose a tool. Adjust, preview and download.',
-              )}
-            </p>
-          </div>
-          <span className="catalog-stamp">
-            <ScanLine size={23} />
-            {t('Tu pequeño estudio', 'Your little studio')}
-            <small>
-              {t('Gratis · Sin registro en la app', 'Free · No in-app account')}
-            </small>
-          </span>
+          <h1>{t('Herramientas de imagen', 'Image tools')}</h1>
         </div>
         <div className="catalog-search" role="search">
           <Search size={21} />
@@ -93,8 +62,8 @@ export default function Catalog({ lang }: { lang: Locale }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t(
-              '¿Qué quieres hacer? Prueba “comprimir”, “fondo” o “SVG”…',
-              'What would you like to do? Try “compress”, “background” or “SVG”…',
+              'Buscar por herramienta o formato',
+              'Search by tool or format',
             )}
             aria-label={t('Buscar herramientas', 'Search tools')}
           />
@@ -106,9 +75,6 @@ export default function Catalog({ lang }: { lang: Locale }) {
               <X size={18} />
             </button>
           )}
-          <kbd>
-            {catalog.length} {t('herramientas', 'tools')}
-          </kbd>
         </div>
         <RadioGroup
           className="category-filters"
@@ -130,19 +96,12 @@ export default function Catalog({ lang }: { lang: Locale }) {
             </label>
           ))}
         </RadioGroup>
-        <div className="catalog-section-label">
-          <h2>
-            {query
-              ? t('Resultados de búsqueda', 'Search results')
-              : phrase(categories[category as keyof typeof categories], lang)}
-          </h2>
-          <span aria-live="polite">
-            {filtered.length} {t('disponibles', 'available')}
-          </span>
-        </div>
+        <span className="sr-only" aria-live="polite">
+          {filtered.length} {t('herramientas', 'tools')}
+        </span>
         {filtered.length ? (
           <div className="tool-grid">
-            {filtered.map((tool, i) => {
+            {filtered.map((tool) => {
               const Icon = icons[tool.id];
               return (
                 <a
@@ -154,15 +113,9 @@ export default function Catalog({ lang }: { lang: Locale }) {
                     <span className="tool-icon">
                       <Icon size={23} strokeWidth={1.6} />
                     </span>
-                    <ArrowUpRight size={19} />
                   </div>
                   <h3>{phrase(tool.name, lang)}</h3>
                   <p>{phrase(tool.description, lang)}</p>
-                  <span className="card-foot">
-                    <Eye size={14} />
-                    {t('Con vista previa', 'Preview included')}
-                    <span>{String(i + 1).padStart(2, '0')}</span>
-                  </span>
                 </a>
               );
             })}
@@ -190,22 +143,6 @@ export default function Catalog({ lang }: { lang: Locale }) {
             </button>
           </Empty>
         )}
-        <div className="catalog-bottom">
-          <span>
-            <Eye size={17} />
-            {t(
-              'Revisa el resultado antes de descargar.',
-              'Check your result before downloading.',
-            )}
-          </span>
-          <span>
-            <ShieldCheck size={17} />
-            {t(
-              'El archivo original se conserva.',
-              'Your original file stays unchanged.',
-            )}
-          </span>
-        </div>
       </main>
       <Footer lang={lang} />
     </div>

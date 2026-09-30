@@ -28,11 +28,12 @@ async function start(model:string,gpu:boolean,base:string,report:Report){
  if(gpu)try{session=await ort.InferenceSession.create(data,{executionProviders:['webgpu','wasm']});backend='webgpu'}catch{report({stage:'wasm_fallback'})}
  if(!session){report({stage:'wasm_fallback'});session=await ort.InferenceSession.create(data,{executionProviders:['wasm']});backend='wasm';}return session;
 }
-export async function prepareMask(original:ImageData,s:Settings,base:string,report:Report,lowMemory=false){
- let gpu=false;try{gpu=!!await (navigator as any).gpu?.requestAdapter()}catch{/* WASM fallback. */}
- let model=s.bgQuality==='fast'||lowMemory&&!gpu?'u2netp':'isnet',allowGpu=gpu;
- for(let attempt=0;attempt<3;attempt++)try{
-  const net=await start(model,allowGpu,base,report),side=model==='isnet'?1024:320,small=await resize(original,side,side),n=side*side;
+type Candidate={alpha:Float32Array;width:number;height:number;model:string;backend:string;passes:number;quality:ReturnType<typeof inspectMask>;guide:ImageData};
+
+async function candidate(original:ImageData,model:string,allowGpu:boolean,base:string,report:Report,maximum=false):Promise<Candidate>{
+ let gpu=allowGpu;
+ for(let attempt=0;attempt<2;attempt++)try{
+  const net=await start(model,gpu,base,report),side=model==='isnet'?1024:320,small=await resize(original,side,side),n=side*side;
   let max=1;for(let i=0;i<small.data.length;i+=4)max=Math.max(max,small.data[i],small.data[i+1],small.data[i+2]);
   const infer=async(flipped:boolean)=>{
    const tensor=new Float32Array(n*3),means=[.485,.456,.406],std=[.229,.224,.225];
@@ -43,18 +44,42 @@ export async function prepareMask(original:ImageData,s:Settings,base:string,repo
    }finally{input.dispose();if(outputs)Object.values(outputs).forEach(t=>t.dispose())}
   };
   report({stage:'segmenting',backend});let alpha=await infer(false),passes=1,q=inspectMask(alpha,side,side,small);
-  if(q.suspicious||s.bgQuality==='maximum'){
+  if(q.suspicious||maximum){
    report({stage:'refining_ai',backend});const second=await infer(true),other=inspectMask(second,side,side,small);passes++;
-   if(maskScore(other)<maskScore(q)*.8)alpha=second;
-   else if(maskScore(other)<=maskScore(q)*1.15)for(let i=0;i<n;i++)alpha[i]=(alpha[i]+second[i])/2;
+   if(maskScore(other)<maskScore(q)*.82){alpha=second;q=other;}
+   else if(!q.suspicious&&!other.suspicious&&maskScore(other)<=maskScore(q)*1.08){for(let i=0;i<n;i++)alpha[i]=(alpha[i]+second[i])/2;q=inspectMask(alpha,side,side,small);}
   }
-  report({stage:'refining_mask',backend});q=inspectMask(alpha,side,side,small,true);
-  return {alpha,width:side,height:side,model,backend,passes,quality:q};
+  return {alpha,width:side,height:side,model,backend,passes,quality:q,guide:small};
  }catch(error){
-  console.warn('Trazo segmentation fallback:',error);await session?.release().catch(()=>{});session=undefined;
-  if(allowGpu){allowGpu=false;report({stage:'wasm_fallback'});continue;}
-  if(model==='isnet'){model='u2netp';report({stage:'light_fallback'});continue;}
-  throw Error(error instanceof Error&&error.message==='model_load_failed'?'model_load_failed':'model_init_failed');
+  console.warn(`Trazo ${model} ${gpu?'WebGPU':'WASM'} attempt:`,error);await session?.release().catch(()=>{});session=undefined;
+  if(gpu){gpu=false;report({stage:'wasm_fallback'});continue;}
+  throw error;
  }
  throw Error('model_init_failed');
+}
+
+export async function prepareMask(original:ImageData,s:Settings,base:string,report:Report,lowMemory=false){
+ let gpu=false;try{gpu=!!await (navigator as any).gpu?.requestAdapter()}catch{/* WASM fallback. */}
+ const primary=s.bgQuality==='fast'||lowMemory&&!gpu?'u2netp':'isnet';
+ try{
+  let chosen=await candidate(original,primary,gpu,base,report,s.bgQuality==='maximum');
+  // ISNet is the main high-detail model. When its own quality check finds an
+  // unstable matte, compare a second architecture instead of accepting a bad
+  // result merely because inference completed successfully.
+  if(primary==='isnet'&&(chosen.quality.suspicious||s.bgQuality==='maximum'))try{
+   report({stage:'refining_ai',backend:chosen.backend});
+   const alternate=await candidate(original,'u2netp',gpu,base,report,false);
+   if(maskScore(alternate.quality)<maskScore(chosen.quality)*.9)chosen=alternate;
+  }catch(error){console.warn('Trazo alternate segmentation model:',error);}
+  report({stage:'refining_mask',backend:chosen.backend});
+  chosen.quality=inspectMask(chosen.alpha,chosen.width,chosen.height,chosen.guide,true);
+  const {guide,...result}=chosen;return result;
+ }catch(error){
+  if(primary==='isnet')try{
+   report({stage:'light_fallback'});const fallback=await candidate(original,'u2netp',gpu,base,report,false);
+   fallback.quality=inspectMask(fallback.alpha,fallback.width,fallback.height,fallback.guide,true);
+   const {guide,...result}=fallback;return result;
+  }catch(fallbackError){error=fallbackError;}
+  throw Error(error instanceof Error&&error.message==='model_load_failed'?'model_load_failed':'model_init_failed');
+ }
 }

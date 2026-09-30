@@ -29,9 +29,9 @@ function guided(mask: Float32Array, guide: ImageData, amount: number) {
   for (let i=0;i<n;i++) { lum[i]=(d[i*4]*.2126+d[i*4+1]*.7152+d[i*4+2]*.0722)/255; square[i]=lum[i]*lum[i]; product[i]=lum[i]*mask[i]; }
   const radius = Math.max(1,Math.round(1+amount/20)), mi=mean(lum,w,h,radius), mp=mean(mask,w,h,radius), mii=mean(square,w,h,radius), mip=mean(product,w,h,radius);
   for(let i=0;i<n;i++){ square[i]=(mip[i]-mi[i]*mp[i])/(mii[i]-mi[i]*mi[i]+.002); product[i]=mp[i]-square[i]*mi[i]; }
-  const a=mean(square,w,h,radius),b=mean(product,w,h,radius);
-  for(let i=0;i<n;i++) mask[i]=mask[i]*(1-amount/100)+Math.max(0,Math.min(1,a[i]*lum[i]+b[i]))*amount/100;
-  return mask;
+  const a=mean(square,w,h,radius),b=mean(product,w,h,radius),out=new Float32Array(n);
+  for(let i=0;i<n;i++)out[i]=Math.max(0,Math.min(1,a[i]*lum[i]+b[i]));
+  return out;
 }
 
 export async function applyMask(original:ImageData,baseMask:Mask,s:Settings,report:Report){
@@ -41,10 +41,22 @@ export async function applyMask(original:ImageData,baseMask:Mask,s:Settings,repo
  const k=Math.min(1,1280/Math.max(original.width,original.height)),w=Math.max(1,Math.round(original.width*k)),h=Math.max(1,Math.round(original.height*k));
  const maskImage=await resize(small,w,h),guide=await resize(original,w,h);let mask=new Float32Array(w*h);
  for(let i=0;i<mask.length;i++)mask[i]=maskImage.data[i*4]/255;
- if(s.edgeRefine>0)guided(mask,guide,s.edgeRefine);
+ if(s.edgeRefine>0){
+  const filtered=guided(mask,guide,s.edgeRefine),amount=s.edgeRefine/100;
+  // Edge guidance belongs only in the uncertain transition band. Applying it
+  // to the whole matte can make faces, clothing and other foreground regions
+  // translucent when their internal colour changes sharply.
+  for(let i=0;i<mask.length;i++){const v=mask[i],uncertain=Math.max(0,1-Math.abs(v-.5)*2),weight=amount*uncertain*uncertain;mask[i]=v+(filtered[i]-v)*weight;}
+ }
  const radius=s.smoothing/35+s.feather*k;
  if(radius>0){const r=Math.ceil(radius),smoothed=mean(mask,w,h,r),amount=Math.min(1,radius/r);for(let i=0;i<mask.length;i++)mask[i]=mask[i]*(1-amount)+smoothed[i]*amount;}
- for(let i=0;i<mask.length;i++)maskImage.data[i*4]=maskImage.data[i*4+1]=maskImage.data[i*4+2]=Math.round(mask[i]*255);
+ for(let i=0;i<mask.length;i++){
+  let v=Math.max(0,Math.min(1,mask[i]));
+  // Stabilise confident foreground/background while preserving a genuine
+  // partial-alpha band for hair and soft edges.
+  if(v<=.015)v=0;else if(v>=.94)v=1;else v=v*v*(3-2*v);
+  maskImage.data[i*4]=maskImage.data[i*4+1]=maskImage.data[i*4+2]=Math.round(v*255);
+ }
  report({stage:'applying_mask'});const full=await resize(maskImage,original.width,original.height);
  for(let i=0;i<original.data.length;i+=4)original.data[i+3]=Math.round(original.data[i+3]*full.data[i]/255);
  return original;

@@ -8,12 +8,10 @@ import {
   Leaf,
   X,
   Download,
-  Eye,
   HelpCircle,
   RotateCcw,
   SlidersHorizontal,
   LoaderCircle,
-  ShieldCheck,
 } from 'lucide-react';
 import { Empty } from '@/components/ui/empty';
 import {
@@ -84,52 +82,38 @@ export default function Editor({
           <Dialog>
             <DialogTrigger className="help-trigger">
               <HelpCircle />
-              {t('Cómo usar', 'How to use')}
+              {t('Ayuda', 'Help')}
             </DialogTrigger>
             <DialogContent className="help-dialog" showCloseButton={false}>
-              <DialogTitle>
-                {t('Revisa antes de descargar', 'Check before downloading')}
-              </DialogTitle>
+              <DialogTitle>{t('Cómo usar esta herramienta', 'How to use this tool')}</DialogTitle>
               <DialogDescription>
                 {t(
-                  'El original se conserva intacto. Puedes cambiar los ajustes tantas veces como quieras.',
-                  'Your original stays unchanged. You can change the settings as many times as you like.',
+                  'Admite PNG, JPG, WebP y AVIF de hasta 60 MB o 48 megapíxeles.',
+                  'Supports PNG, JPG, WebP and AVIF up to 60 MB or 48 megapixels.',
                 )}
               </DialogDescription>
               <ol className="guide-copy">
                 <li>
                   {t(
-                    'Elige una imagen PNG, JPG, WebP o AVIF de hasta 60 MB y 48 megapíxeles.',
-                    'Choose a PNG, JPG, WebP or AVIF up to 60 MB and 48 megapixels.',
+                    'Selecciona o arrastra una imagen.',
+                    'Select or drop an image.',
                   )}
                 </li>
                 <li>
                   {t(
-                    'Ajusta el resultado y compáralo con el original. Usa el zoom para revisar los detalles.',
-                    'Adjust the result and compare it with the original. Zoom in to check details.',
+                    'Revisa el resultado y ajusta las opciones si lo necesitas.',
+                    'Review the result and adjust the options if needed.',
                   )}
                 </li>
                 <li>
                   {t(
-                    'Trazo analiza tu imagen y prepara el resultado automáticamente. Los ajustes avanzados son opcionales.',
-                    'Trazo analyzes your image and prepares the result automatically. Advanced settings are optional.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'Descarga cuando estés conforme. Se aplican tus ajustes a la resolución original.',
-                    'Download when you are happy. Your settings are applied at original resolution.',
+                    'Descarga el archivo terminado.',
+                    'Download the finished file.',
                   )}
                 </li>
               </ol>
-              <p className="control-note">
-                {t(
-                  'La preview es ligera para editar con fluidez. La descarga usa el original completo, salvo las medidas que elijas al redimensionar o recortar.',
-                  'The lightweight preview keeps editing responsive. Download uses the full original, except dimensions you choose when resizing or cropping.',
-                )}
-              </p>
               <DialogClose className="primary">
-                {t('Entendido', 'Got it')}
+                {t('Cerrar', 'Close')}
               </DialogClose>
             </DialogContent>
           </Dialog>
@@ -191,8 +175,8 @@ export default function Editor({
                 </h2>
                 <p>
                   {t(
-                    'PNG, JPG, WebP o AVIF · Hasta 60 MB',
-                    'PNG, JPG, WebP or AVIF · Up to 60 MB',
+                    'PNG, JPG, WebP o AVIF (máximo 60 MB)',
+                    'PNG, JPG, WebP or AVIF (60 MB max)',
                   )}
                 </p>
                 <button
@@ -201,7 +185,7 @@ export default function Editor({
                   onClick={() => input.current?.click()}
                 >
                   <Upload />
-                  {t('Elegir imagen', 'Choose image')}
+                  {t('Seleccionar imagen', 'Select image')}
                 </button>
                 <button
                   className="text-button demo-button"
@@ -211,13 +195,6 @@ export default function Editor({
                   <Leaf ref={demoIcon} />
                   {t('Probar con un ejemplo', 'Try an example')}
                 </button>
-                <span className="privacy-caption">
-                  <ShieldCheck />
-                  {t(
-                    'Tu imagen se procesa en tu dispositivo',
-                    'Your image is processed on your device',
-                  )}
-                </span>
               </Empty>
             ) : (
               <Preview
@@ -252,28 +229,17 @@ export default function Editor({
                   {formatBytes(source.blob.size)}
                 </span>
               ) : (
-                <span>
-                  {t(
-                    'Sin registro en la app. Sin marcas de agua añadidas.',
-                    'No app registration. No added watermarks.',
-                  )}
-                </span>
+                <span>{t('PNG, JPG, WebP y AVIF', 'PNG, JPG, WebP and AVIF')}</span>
               )}
-              <span>
-                {t(
-                  'El original siempre se conserva',
-                  'Your original is always preserved',
-                )}
-              </span>
             </div>
           </section>
           <aside className="settings editor-settings">
-            <div className="settings-title"><span><SlidersHorizontal/>{t('Tu resultado','Your result')}</span><button className="text-button" disabled={!source||loading} onClick={()=>void reset()} title={t('Volver a analizar esta imagen','Analyze this image again')}><RotateCcw/>✨ Auto</button></div>
+            <div className="settings-title"><span><SlidersHorizontal/>{t('Salida','Output')}</span><button className="text-button" disabled={!source||loading} onClick={()=>void reset()} title={t('Volver a analizar esta imagen','Analyze this image again')}><RotateCcw/>{t('Auto','Auto')}</button></div>
             <div className="settings-body">
               {notice&&<p className="export-warning" role="status">{notice}</p>}
               {error&&<div className="message error" role="alert"><p>{error}</p>{source&&<button className="text-button" disabled={loading} onClick={()=>void reset()}>{t('Reintentar con Auto','Try Auto again')}</button>}</div>}
               <div className="export-panel auto-export">
-                <div className="export-heading">{t('Tu archivo de salida','Your output file')}</div>
+                <div className="export-heading">{t('Archivo','File')}</div>
                 {source&&toolId==='resize'&&<p className="control-note">{t('Original','Original')}: {source.width} × {source.height} px · {analysis?.orientation==='portrait'?t('Vertical','Portrait'):analysis?.orientation==='landscape'?t('Horizontal','Landscape'):t('Cuadrada','Square')}</p>}
                 {result&&<>
                   <div className="output-stats"><strong>{result.extension.toUpperCase()}</strong><span>{exact?formatBytes(result.blob.size):result.estimatedBytes?`≈ ${formatBytes(result.estimatedBytes)}`:''}</span><span>{result.width} × {result.height} px</span></div>
@@ -285,11 +251,9 @@ export default function Editor({
                 </>}
                 {downloadUrl&&canDownload?<a className="primary download-button" href={downloadUrl} download={`${source?.name.replace(/\.[^.]+$/, '')}-${tool.slug}.${result?.extension}`}><Download/>{t('Descargar','Download')} {result?.extension.toUpperCase()}</a>:<button className="primary download-button" disabled={!canDownload} onClick={()=>void exportFile()}>{exporting?<LoaderCircle className="spin"/>:<Download/>}{exporting?t('Exportando…','Exporting…'):t('Descargar','Download')}{result&&!exporting?` ${result.extension.toUpperCase()}`:''}</button>}
                 {toolId==='vector'&&result&&(optimizedUrl&&canDownload?<a className="secondary-button" href={optimizedUrl} download={`${source?.name.replace(/\.[^.]+$/, '')}-optimized.svg`}>{t('Descargar SVG optimizado','Download optimized SVG')}</a>:<button className="secondary-button" disabled={!canDownload} onClick={()=>void exportFile(true)}>{t('Descargar SVG optimizado','Download optimized SVG')}</button>)}
-                <p className="export-hint">{source?t('Preview ligera · Descarga a resolución completa.','Lightweight preview · Full resolution download.'):t('Elige una imagen. Trazo prepara el resultado.','Choose an image. Trazo prepares the result.')}</p>
               </div>
               <details className="advanced-settings">
                 <summary>{t('Ajustes avanzados','Advanced settings')}</summary>
-                <p className="auto-preview"><Eye/>{t('Los cambios se muestran automáticamente','Changes preview automatically')}</p>
                 <fieldset disabled={!source||loading}><SettingsPanel lang={lang} toolId={toolId} s={settings} set={set} width={source?.width||1200} height={source?.height||1200} hasAlpha={analysis?.hasAlpha??false}/></fieldset>
               </details>
             </div>
